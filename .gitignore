@@ -1,0 +1,24 @@
+# node / next / pnpm
+node_modules/
+.next/
+pnpm-lock.yaml
+npm-debug.log*
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.env
+.env.*
+*.sqlite3
+
+# editor
+.vscode/
+.idea/
+
+# docker
+*.pid
+*.log
+
+# misc
+.DS_Store

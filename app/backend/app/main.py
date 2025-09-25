@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .core.config import settings
 from .api.health import router as health_router
+from .api.auth import router as auth_router
+from .api.sessions import router as sessions_router
 
 app = FastAPI(title="Eloquent RAG Chatbot API")
 
@@ -15,3 +17,5 @@ app.add_middleware(
 )
 
 app.include_router(health_router, tags=["meta"])
+app.include_router(auth_router)
+app.include_router(sessions_router)

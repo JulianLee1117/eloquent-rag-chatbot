@@ -2,7 +2,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Response, Request, status
 from pydantic import BaseModel
 from ..core.config import settings
-from ..core.security import verify_password, create_access_token, decode_access_token
+from ..core.security import verify_password, create_access_token, decode_access_token, hash_password
 from ..db.base import get_db
 from ..db import crud
 
@@ -19,6 +19,20 @@ def _cookie_kwargs():
 class LoginIn(BaseModel):
     email: str
     password: str
+
+class RegisterIn(BaseModel):
+    email: str
+    password: str
+
+@router.post("/register")
+def register(body: RegisterIn, response: Response, db = Depends(get_db)):
+    existing = crud.get_user_by_email(db, body.email)
+    if existing:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
+    user = crud.create_user(db, email=body.email, hashed_password=hash_password(body.password))
+    token = create_access_token({"sub": str(user.id)})
+    response.set_cookie(COOKIE_NAME, token, **_cookie_kwargs())
+    return {"ok": True}
 
 @router.post("/login")
 def login(body: LoginIn, response: Response, db = Depends(get_db)):

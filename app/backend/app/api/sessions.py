@@ -17,6 +17,9 @@ router = APIRouter(prefix="/sessions", tags=["sessions"])
 
 class SessionCreateIn(BaseModel):
     title: Optional[str] = None
+class SessionUpdateIn(BaseModel):
+    title: Optional[str] = None
+
 
 
 @router.post("", response_model=SessionOut, status_code=status.HTTP_201_CREATED)
@@ -90,3 +93,22 @@ def delete_session(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     crud.soft_delete_session(db, session_id=session_id)
     return None
+
+
+@router.patch("/{session_id}", response_model=SessionOut)
+def update_session(
+    session_id: UUID,
+    body: SessionUpdateIn,
+    identity: Identity = Depends(get_current_identity),
+    db: Session = Depends(get_db),
+):
+    if not identity:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+    sess = crud.get_session(db, session_id)
+    if not sess:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+    if not crud.assert_session_belongs_to_identity(sess, user_id=identity.get("user_id"), anon_id=identity.get("anon_id")):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    if body.title is not None:
+        sess = crud.update_session_title(db, session_id=session_id, title=body.title)
+    return SessionOut.model_validate(sess)

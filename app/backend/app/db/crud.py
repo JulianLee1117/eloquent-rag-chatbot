@@ -123,3 +123,14 @@ def list_messages_paginated(
         stmt = stmt.where(Message.created_at < before)
     stmt = stmt.order_by(desc(Message.created_at), desc(Message.id)).limit(limit)
     return list(db.scalars(stmt))
+
+# Updates
+def update_session_title(db: Session, *, session_id: UUID, title: str) -> ChatSession | None:
+    sess = db.get(ChatSession, session_id)
+    if not sess:
+        return None
+    sess.title = title
+    db.add(sess)
+    db.commit()
+    db.refresh(sess)
+    return sess

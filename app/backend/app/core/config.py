@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     pinecone_api_key: str | None = None
     pinecone_index: str | None = None
     pinecone_env: str | None = None
-    pinecone_host: AnyUrl | None = None
+    pinecone_host: str | None = None
     embedding_model: str | None = None
     llm_model: str | None = None
     llm_api_key: str | None = None

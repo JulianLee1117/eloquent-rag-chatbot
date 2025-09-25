@@ -1,5 +1,8 @@
 import uuid
-from sqlalchemy import select
+from datetime import datetime, timezone
+from typing import Optional
+from uuid import UUID
+from sqlalchemy import select, and_, desc
 from sqlalchemy.orm import Session
 from .models import User, Session as ChatSession, Message, Role
 
@@ -62,4 +65,61 @@ def list_messages(db: Session, session_id: uuid.UUID, limit: int = 100) -> list[
         .order_by(Message.created_at.asc())
         .limit(limit)
     )
+    return list(db.scalars(stmt))
+
+def get_session(db: Session, session_id: UUID) -> ChatSession | None:
+    return db.scalar(select(ChatSession).where(ChatSession.id == session_id))
+
+def assert_session_belongs_to_identity(sess: ChatSession, *, user_id: str | None, anon_id: str | None) -> bool:
+    if user_id:
+        return str(sess.user_id) == user_id
+    if anon_id:
+        return sess.anon_id == anon_id
+    return False
+
+# --- Step 9 additions ---
+def create_anon_session(db: Session, *, anon_id: str, title: str | None = None) -> ChatSession:
+    sess = ChatSession(anon_id=anon_id, title=title)
+    db.add(sess)
+    db.commit()
+    db.refresh(sess)
+    return sess
+
+def list_sessions_for_user(db: Session, *, user_id: str, limit: int = 50) -> list[ChatSession]:
+    stmt = (
+        select(ChatSession)
+        .where(and_(ChatSession.user_id == user_id, ChatSession.deleted_at.is_(None)))
+        .order_by(desc(ChatSession.created_at), desc(ChatSession.id))
+        .limit(limit)
+    )
+    return list(db.scalars(stmt))
+
+def list_sessions_for_anon(db: Session, *, anon_id: str, limit: int = 50) -> list[ChatSession]:
+    stmt = (
+        select(ChatSession)
+        .where(and_(ChatSession.anon_id == anon_id, ChatSession.deleted_at.is_(None)))
+        .order_by(desc(ChatSession.created_at), desc(ChatSession.id))
+        .limit(limit)
+    )
+    return list(db.scalars(stmt))
+
+def soft_delete_session(db: Session, *, session_id: UUID) -> None:
+    sess = db.get(ChatSession, session_id)
+    if not sess or sess.deleted_at is not None:
+        return
+    sess.deleted_at = datetime.now(timezone.utc)
+    db.add(sess)
+    db.commit()
+
+def list_messages_paginated(
+    db: Session,
+    *,
+    session_id: UUID,
+    limit: int = 50,
+    before: Optional[datetime] = None,
+) -> list[Message]:
+    stmt = select(Message).where(Message.session_id == session_id)
+    if before is not None:
+        stmt = stmt.where(Message.created_at < before)
+    stmt = stmt.order_by(desc(Message.created_at), desc(Message.id)).limit(limit)
     return list(db.scalars(stmt))

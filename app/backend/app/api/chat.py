@@ -13,9 +13,9 @@ from ..core.config import settings
 from ..db.base import get_db
 from ..db import crud
 from ..db.models import Role
-from ..db.schemas import SessionOut
-from ..rag.pipeline import generate_stream_for_session
+from ..services.chat_service import ChatService
 from .sse import sse_event
+from ..utils.tokens import count_tokens
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -60,10 +60,16 @@ def chat_stream(body: ChatIn, request: Request, db: Session = Depends(get_db), i
 
     # Resolve/create session & persist user message up front
     sid = _resolve_session(db, identity, body.session_id)
-    user_msg = crud.append_message(db, session_id=sid, role=Role.user, content=body.message, tokens_in=len(body.message.split()))
+    user_msg = crud.append_message(
+        db,
+        session_id=sid,
+        role=Role.user,
+        content=body.message,
+        tokens_in=count_tokens(body.message),
+    )
 
     # Build RAG+LLM streamer
-    result = generate_stream_for_session(db, sid)
+    result = ChatService.stream_for_session(db, sid)
 
     # SSE generator (sync) and send an initial open frame to encourage flushing
     def event_gen():
@@ -83,6 +89,7 @@ def chat_stream(body: ChatIn, request: Request, db: Session = Depends(get_db), i
                     session_id=sid,
                     role=Role.assistant,
                     content=assistant_text,
+                    tokens_in=result.usage.get("tokens_in", 0),
                     tokens_out=result.usage.get("tokens_out", 0),
                 )
             # send final 'done' with metadata

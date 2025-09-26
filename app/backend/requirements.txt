@@ -8,8 +8,10 @@ psycopg[binary]==3.2.10
 alembic==1.16.5
 pytest==8.4.2
 python-jose[cryptography]>=3.3
+passlib[bcrypt]>=1.7.4
 bcrypt==4.0.1
 
 pinecone[grpc]      
 httpx==0.28.1
 openai>=1.50.0
+tiktoken>=0.7.0

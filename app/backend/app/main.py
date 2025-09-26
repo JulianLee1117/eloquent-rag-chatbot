@@ -18,7 +18,7 @@ def _configure_rag_logging() -> None:
     fmt = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
     handler = logging.StreamHandler()
     handler.setFormatter(fmt)
-    for name in ("rag.embedder", "rag.retriever", "rag.pipeline"):
+    for name in ("rag.embedder", "rag.retriever", "services.chat", "utils.tokens"):
         lg = logging.getLogger(name)
         lg.setLevel(logging.DEBUG)
         lg.propagate = False 

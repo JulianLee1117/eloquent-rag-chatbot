@@ -121,10 +121,8 @@ def retrieve_optimal(query_text: str, final_k: int = 4) -> List[Doc]:
 
     for idx, clause in enumerate(clauses):
         emb = embed_query(clause)
-        # Merge basic keyword map and synonym map to improve recall
-        cats_basic = set()  # removed simple map to avoid redundancy
         cats_syn = _guess_categories_synonyms(clause)
-        cats = set(cats_basic) | set(cats_syn)
+        cats = set(cats_syn)
 
         filt: Optional[dict] = None
         if len(cats) == 1:

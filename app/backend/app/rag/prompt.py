@@ -9,7 +9,10 @@ Follow these rules strictly:
 - Use ONLY the provided context; do NOT invent facts.
 - Cite sources inline using the format [FAQ x], for example [FAQ 11]. The FAQ number x is shown next to each context entry.
 - If the answer is not in context, say you don’t know and suggest what to ask next.
-- Keep answers concise, step-by-step if needed, and safe (never request sensitive data)."""
+- Keep answers concise, step-by-step if needed, and safe (never request sensitive data).
+
+You will be given a section called "Context documents". Only answer using these.
+"""
 
 
 def _extract_faq_num(doc_id: str) -> str:
@@ -30,8 +33,8 @@ def build_messages(history: list[dict], user_question: str, docs: List[Doc]) -> 
     messages: list[dict] = [{"role": "system", "content": SYSTEM_PROMPT}]
     ctx = format_context(docs)
     messages.append({
-        "role": "system",
-        "content": f"Context documents:\n{ctx}\n\nOnly answer using these.",
+        "role": "user",
+        "content": f"Context documents:\n{ctx}",
     })
     for m in history:
         if m.get("role") in ("user", "assistant"):

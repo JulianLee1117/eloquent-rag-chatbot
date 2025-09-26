@@ -1,7 +1,14 @@
-"""Chat API endpoints: stream responses via SSE.
+"""Chat API endpoints: streaming chat responses via SSE.
 
-Exposes a POST endpoint that accepts a message and emits a server‑sent
-events stream with incremental tokens and a final "done" event.
+POST `/chat` accepts `{session_id?, message}` and emits a server-sent events
+stream:
+- event: `open`  → initial flush
+- event: `token` → `{ token: str }` partial tokens
+- event: `done`  → `{ citations, usage, session_id }`
+
+The endpoint resolves or creates a chat session for the current identity,
+persists the user message before streaming, and persists the assistant message
+after streaming completes.
 """
 from __future__ import annotations
 

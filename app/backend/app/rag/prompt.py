@@ -1,4 +1,9 @@
-"""Prompt utilities for assembling system/user messages with citations."""
+"""Prompt utilities for assembling system/user messages with citations.
+
+`build_messages(history, user_question, docs)` constructs a strict system
+prompt, injects formatted context documents (with `[FAQ n]` markers), appends
+recent history, and the user's latest question.
+"""
 from __future__ import annotations
 
 from typing import List

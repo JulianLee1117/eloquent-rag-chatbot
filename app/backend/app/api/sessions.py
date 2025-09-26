@@ -1,4 +1,14 @@
+"""Chat sessions API.
+
+Endpoints for creating, listing, updating, deleting sessions and fetching
+messages, scoped to the current identity (user or anon). Anonymous sessions
+are keyed by the `anon_id` cookie.
+
+Soft deletes are supported via `deleted_at` and deleted sessions return an
+empty message list.
+"""
 from __future__ import annotations
+
 from datetime import datetime
 from typing import Optional
 from uuid import UUID

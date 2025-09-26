@@ -1,4 +1,9 @@
-"""Query embedding via Pinecone Inference API."""
+"""Query embedding via Pinecone Inference API.
+
+`embed_query(text)` returns a normalized float vector for use with Pinecone
+query. Requires `PINECONE_API_KEY` and a valid `EMBEDDING_MODEL` (defaults to
+`llama-text-embed-v2`).
+"""
 from __future__ import annotations
 
 

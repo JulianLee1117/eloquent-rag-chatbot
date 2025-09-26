@@ -1,3 +1,7 @@
+"""Small helper for formatting Server-Sent Events frames.
+
+Each SSE block is `event: <name>\ndata: <json or text>\n\n`.
+"""
 import json
 
 def sse_event(event: str, data: dict | str) -> bytes:

@@ -1,5 +1,9 @@
-from typing import Optional, TypedDict
-from uuid import UUID
+"""Dependency helpers shared across routers.
+
+Defines the `Identity` TypedDict and `get_current_identity` extractor which
+prefers a valid `id_token` (JWT) cookie and falls back to an `anon_id` cookie.
+"""
+from typing import TypedDict
 from fastapi import Request
 from .core.security import decode_access_token
 

@@ -1,19 +1,18 @@
 from fastapi import FastAPI
 import logging
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from .core.config import settings
 from .api.health import router as health_router
 from .api.auth import router as auth_router
 from .api.sessions import router as sessions_router
 from .api.chat import router as chat_router
 
-app = FastAPI(title="Eloquent RAG Chatbot API")
 
+def _configure_logging() -> None:
+    """Ensure debug logs show up in console consistently.
 
-def _configure_rag_logging() -> None:
-    """Ensure RAG debug logs show up in console consistently.
-
-    We attach a simple StreamHandler to our RAG loggers at DEBUG level.
+    We attach a simple StreamHandler to our loggers at DEBUG level.
     """
     fmt = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
     handler = logging.StreamHandler()
@@ -25,8 +24,14 @@ def _configure_rag_logging() -> None:
         if not lg.handlers:
             lg.addHandler(handler)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Configure logging on startup per best practices
+    _configure_logging()
+    yield
 
-_configure_rag_logging()
+
+app = FastAPI(title="Eloquent RAG Chatbot API", lifespan=lifespan)
 
 # CORS (tighten later)
 app.add_middleware(

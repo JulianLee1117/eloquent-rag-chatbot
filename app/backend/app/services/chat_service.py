@@ -1,4 +1,13 @@
+"""Chat service orchestration for RAG + streaming LLM responses.
+
+This module provides a thin orchestration layer that:
+- builds the dialogue context window
+- retrieves relevant documents
+- constructs the final LLM messages
+- streams completion tokens while tracking usage
+"""
 from __future__ import annotations
+
 from collections.abc import Iterator
 from typing import Iterable, List, Tuple
 import logging
@@ -19,6 +28,8 @@ logger = logging.getLogger("services.chat")
 
 
 class StreamResult:
+    """Adapter that buffers streamed tokens and tracks usage and citations."""
+
     def __init__(self, tokens: Iterable[str], *, citations: list[dict], tokens_in: int = 0):
         self._tokens = iter(tokens)
         self.buffer: List[str] = []
@@ -35,6 +46,11 @@ class StreamResult:
 
 
 class ChatService:
+    """High-level RAG chat use case.
+
+    Stateless static methods keep API routing thin while allowing future
+    evolution to dependency-injected instances if needed.
+    """
     MAX_CONTEXT_MESSAGES = 12
     FINAL_CONTEXT_K = 4
 

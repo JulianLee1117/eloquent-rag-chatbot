@@ -1,4 +1,6 @@
+"""Prompt utilities for assembling system/user messages with citations."""
 from __future__ import annotations
+
 from typing import List
 import re
 from .types import Doc

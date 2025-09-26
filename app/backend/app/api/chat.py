@@ -1,4 +1,10 @@
+"""Chat API endpoints: stream responses via SSE.
+
+Exposes a POST endpoint that accepts a message and emits a server‑sent
+events stream with incremental tokens and a final "done" event.
+"""
 from __future__ import annotations
+
 import uuid
 from typing import Optional
 from uuid import UUID
@@ -9,7 +15,6 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from ..deps import get_current_identity, Identity
-from ..core.config import settings
 from ..db.base import get_db
 from ..db import crud
 from ..db.models import Role

@@ -1,4 +1,12 @@
+"""Retriever: category-aware dense retrieval over Pinecone.
+
+Heuristics:
+- Decompose multi-intent queries into clauses.
+- Guess categories via synonyms and apply a soft filter (retry unfiltered if empty).
+- Diversify results by clause, then fill by global score.
+"""
 from __future__ import annotations
+
 from typing import List, Optional, Set, Dict, Tuple
 import logging
 import re

@@ -1,4 +1,7 @@
+"""Query embedding via Pinecone Inference API."""
 from __future__ import annotations
+
+
 import logging
 from pinecone import Pinecone
 from ..core.config import settings

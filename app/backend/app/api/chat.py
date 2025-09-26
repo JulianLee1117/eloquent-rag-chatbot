@@ -14,7 +14,7 @@ from ..db.base import get_db
 from ..db import crud
 from ..db.models import Role
 from ..db.schemas import SessionOut
-from ..rag.pipeline import generate_stream
+from ..rag.pipeline import generate_stream_for_session
 from .sse import sse_event
 
 router = APIRouter(prefix="/chat", tags=["chat"])
@@ -62,13 +62,15 @@ def chat_stream(body: ChatIn, request: Request, db: Session = Depends(get_db), i
     sid = _resolve_session(db, identity, body.session_id)
     user_msg = crud.append_message(db, session_id=sid, role=Role.user, content=body.message, tokens_in=len(body.message.split()))
 
-    # Build streamer (plug RAG+LLM later)
-    result = generate_stream(body.message)
+    # Build RAG+LLM streamer
+    result = generate_stream_for_session(db, sid)
 
-    # SSE generator
-    async def event_gen():
+    # SSE generator (sync) and send an initial open frame to encourage flushing
+    def event_gen():
         # headers: done below in StreamingResponse
         try:
+            # initial open event to flush response headers early
+            yield sse_event("open", "ok")
             # stream tokens
             for tok in result:
                 # yield token events frequently
@@ -85,7 +87,7 @@ def chat_stream(body: ChatIn, request: Request, db: Session = Depends(get_db), i
                 )
             # send final 'done' with metadata
             yield sse_event("done", {
-                "citations": result.citations,  # will be list of {source, heading, ...} later
+                "citations": result.citations,
                 "usage": result.usage,
                 "session_id": str(sid),
             })

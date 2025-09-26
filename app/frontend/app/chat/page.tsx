@@ -135,7 +135,7 @@ export default function ChatPage() {
         }}
       />
       <div className="chat-area">
-        <div className="chat-header"><strong>Fintech Assistant</strong></div>
+        <div className="chat-header"><strong>Eloquent AI Assistant</strong></div>
         <MessageList messages={messagesQ.data || []} isStreaming={isStreaming} pendingText={pendingText} />
         <Composer onSend={handleSend} disabled={isStreaming} />
       </div>

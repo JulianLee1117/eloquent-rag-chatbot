@@ -172,3 +172,25 @@ cd app/backend
 pytest -q
 ```
 
+
+## Approach & Architectural Decisions
+
+### How I approached the problem
+- I used GPT and Claude to research options and draft a focused plan centered on streaming UX, persistence, and a practical RAG path.
+- I iterated the plan by evaluating latency, cost, and simplicity tradeoffs specific to this app, refining APIs and the data model for a chat-first workflow.
+- I implemented step-by-step with LLM assistance while cross-checking docs and examples to align with current best practices.
+
+### Why these architectural choices (beyond the baseline requirements)
+- SSE for token streaming vs WebSockets: simpler ops and CDN/proxy friendly for one-way token delivery.
+- JWT in HttpOnly cookies + anon cookie: secure-by-default credentials with a smooth path from first-time anonymous to registered users.
+- Soft-delete (`deleted_at`) for sessions: safer UX and easier analytics without irreversible data loss.
+- Strict system prompt with inline `[FAQ n]` citations: improves trust and encourages grounded, non-hallucinated answers.
+- Category-aware retrieval with synonym-based soft filters and diversification: when a query clearly maps to one category, apply a filter; otherwise search broadly and retry unfiltered if empty; diversify across clauses to cover multi-intent queries.
+- Token accounting using `tiktoken` approximation: lightweight observability and cost awareness without impacting latency.
+- Lifespan-based logging setup: reliable startup-time configuration and consistent logger behavior for RAG/services modules.
+- DB-level pagination for messages: efficient, deterministic scrollback with clear limits and ordering.
+- React Query client cache: minimal glue code with built-in invalidation and optimistic updates for a snappy chat experience.
+- Alembic migrations on startup in dev/compose: keeps local environments consistent; in prod this can be a one-off job for stricter control.
+- Pinecone GRPC host and category heuristics: low-overhead queries and simple domain heuristics that boost early precision for fintech FAQs.
+
+

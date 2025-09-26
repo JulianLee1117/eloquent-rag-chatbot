@@ -12,7 +12,7 @@ export default function ChatPage() {
   const [current, setCurrent] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [pendingText, setPendingText] = useState<string>(''); // live tokens
-  const [lastCitations, setLastCitations] = useState<unknown[]>([]);
+  // citations removed per product decision
 
   // ensure anon cookie on first load (non-sensitive; JWT stays HttpOnly server-side)
   useEffect(() => { ensureAnonCookie(); }, []);
@@ -45,6 +45,9 @@ export default function ChatPage() {
     refetchOnWindowFocus: false,
   });
 
+  // Reset transient UI state when switching sessions
+  useEffect(() => { setPendingText(''); }, [current]);
+
   async function handleSend(text: string) {
     let sid = current;
     if (!sid) {
@@ -61,7 +64,6 @@ export default function ChatPage() {
     }
     setIsStreaming(true);
     setPendingText('');
-    setLastCitations([]);
 
     // optimistic insert user message; also set a title if session was Untitled
     qc.setQueryData<Message[]>(['messages', sid], (prev = []) => [
@@ -94,7 +96,7 @@ export default function ChatPage() {
         if (evt.event === 'token') {
           setPendingText((t) => t + evt.data.token);
         } else if (evt.event === 'done') {
-          setLastCitations(evt.data.citations || []);
+          // citations removed
         } else if (evt.event === 'error') {
           console.error('SSE error', evt.data);
         }
@@ -134,7 +136,7 @@ export default function ChatPage() {
       />
       <div className="chat-area">
         <div className="chat-header"><strong>Fintech Assistant</strong></div>
-        <MessageList messages={messagesQ.data || []} isStreaming={isStreaming} pendingText={pendingText} citations={lastCitations} />
+        <MessageList messages={messagesQ.data || []} isStreaming={isStreaming} pendingText={pendingText} />
         <Composer onSend={handleSend} disabled={isStreaming} />
       </div>
     </div>

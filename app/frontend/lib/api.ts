@@ -20,6 +20,12 @@ export type Message = {
   content: string; tokens_in: number; tokens_out: number; created_at: string;
 };
 
+export type Citation = {
+  id: string;
+  rank: number;
+  category?: string | null;
+};
+
 export async function listSessions(): Promise<Session[]> {
   const r = await fetch(`${API}/sessions`, { credentials: 'include' });
   if (!r.ok) throw new Error('failed to list sessions');
@@ -101,7 +107,7 @@ export async function getMessages(sessionId: string, limit = 50, before?: string
 }
 
 export type DonePayload = {
-    citations: unknown[];
+    citations: Citation[];
     usage: { tokens_in: number; tokens_out: number };
     session_id: string;
 };
@@ -113,7 +119,7 @@ export async function* streamChat(sessionId: string, message: string): AsyncGene
 > {
   const r = await fetch(`${API}/chat`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream' },
     credentials: 'include',
     body: JSON.stringify({ session_id: sessionId, message }),
   });

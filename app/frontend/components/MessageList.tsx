@@ -7,12 +7,10 @@ export default function MessageList({
   messages,
   isStreaming,
   pendingText,
-  citations,
 }: {
   messages: Message[];
   isStreaming: boolean;
   pendingText: string;
-  citations: unknown[];
 }) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, pendingText]);
@@ -37,18 +35,6 @@ export default function MessageList({
           <div>
             <div className="sender">Assistant</div>
             <div className="bubble assistant">{pendingText}</div>
-          </div>
-        </div>
-      )}
-      {citations?.length > 0 && (
-        <div className="message-row assistant">
-          <div className="bubble assistant" style={{ marginTop: 8 }}>
-            <b>Sources</b>
-            <ul style={{ marginTop: 6 }}>
-              {citations.map((c, i) => (
-                <li key={i}><small>{JSON.stringify(c)}</small></li>
-              ))}
-            </ul>
           </div>
         </div>
       )}

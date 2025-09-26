@@ -1,17 +1,28 @@
+# Web Framework
 fastapi==0.117.1
 uvicorn[standard]==0.37.0
+
+# Data Validation
 pydantic==2.11.9
 pydantic-settings==2.4.0
 
+# Database
 SQLAlchemy==2.0.43
 psycopg[binary]==3.2.10
 alembic==1.16.5
-pytest==8.4.2
+
+# Authentication
 python-jose[cryptography]>=3.3
 passlib[bcrypt]>=1.7.4
 bcrypt==4.0.1
 
+# AIML Services
 pinecone[grpc]      
-httpx==0.28.1
 openai>=1.50.0
 tiktoken>=0.7.0
+
+# HTTP Client
+httpx==0.28.1
+
+# Testing
+pytest==8.4.2

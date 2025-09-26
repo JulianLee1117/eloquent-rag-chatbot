@@ -176,7 +176,7 @@ pytest -q
 ## Approach & Architectural Decisions
 
 ### How I approached the problem
-- I approached this project iteratively by leveraging GPT and Claude to research design patterns and generate initial plans. I refined these plans through multiple rounds of questioning—gauging best practices for this specific use case—and then implemented the system step by step, validating decisions along the way. Search tools and up-to-date references helped ensure the design aligned with current standards.
+I approached this project iteratively by leveraging GPT and Claude to research design patterns and generate initial plans. I refined these plans through multiple rounds of questioning—gauging best practices for this specific use case—and then implemented the system step by step, validating decisions along the way. Search tools and up-to-date references helped ensure the design aligned with current standards.
 
 ### Why these architectural choices (beyond the baseline requirements)
 - SSE for token streaming vs WebSockets: simpler ops and CDN/proxy friendly for one-way token delivery.
